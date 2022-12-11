@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Yarik.COM</title>
+<style>
+td {padding:5px;}
+button{margin: 5px;}
+</style>
+</head>
+<body>
+    <table width="100%" cellspacing="0" cellpadding="5">
+    <tr>
+        <!--Добавление, изменение данных-->
+        <td
+            width="400" valign="top">
+            <h1>Список студентов</h1>
+    <div>
+        <input type="hidden" id="StudentID" />
+        <p>
+            Номер студента:<br/>
+            <input id="id_studet" type="number" />
+        </p>
+        <p>
+            Имя студента:<br />
+            <input id="first_name"/>
+        </p>
+        <p>
+            Фамилия студента:<br />
+            <input id="last_name"/>
+        </p>
+        <p>
+            Возраст студента:<br />
+            <input id="age" type="number" />
+        </p>
+        <p>
+            Дата дня рождения:<br />
+            <input id="birth_date" type = "date" />
+        </p>
+        <p>
+            Логин:<br />
+            <input id="login"/>
+        </p>
+        <p>
+            Пароль: <br />
+            <input id="password"/>
+        </p>
+         <p>
+            <button id="saveBtn">Сохранить</button>
+            <button id="resetBtn">Сбросить</button>
+        </p>
+        <div>
+        <br /><br />
+        <h1>Поиск студентов по группе</h1>
+        <select>
+        </select>
+        </div>
+    </div>
+            <!--Конец блока-->
+            <!--Вывод поиска относ к студентам-->
+    </td>
+        <td
+                valign="top">
+            <table>
+        <thead><tr><th>Номер студента</th><th>Номер группы</th><th>Имя</th>
+        <th>Фамилия</th><th>Возраст</th><th>Дата Рождения</th><th>Логин</th><th>Пароль</th></tr></thead>
+        <tbody>
+        </tbody>
+            </table>
+            <!--Конец блока-->
+        </td>
+    </tr>
+    </table>
+    <br /><br /><br /><br />
+    <table width="100%" cellspacing="0" cellpadding="5">
+        <tr>
+            <td width="400" valign="top">
+               <div>
+        <h1>Студенческие группы</h1>
+        <p>
+            Номер группы: <br />
+            <input id = "id_group"/>
+        </p>
+        <p>
+            Название : <br />
+            <input id = "name_group"/>
+        </p>
+        <p>
+            <button id="saveGroupBtn">Сохранить</button>
+            <button id="resetGroupBtn">Сбросить</button>
+        </p>
+    </div>
+            </td>
+                <td valign="top">
+                    <table>
+                        <thead><tr><th>Номер группы</th><th>Название группы</th></tr></thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+    </table>
+    <script>
+    // Получение всех пользователей
+        async function getUsers() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/users", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const users = await response.json();
+                const rows = document.querySelector("tbody");
+                // добавляем полученные элементы в таблицу
+                student.forEach(user => rows.append(row(user)));
+            }
+        }
+        // Получение всех групп
+        async function getGroup() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/users", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const users = await response.json();
+                const rows = document.querySelector("tbody");
+                // добавляем полученные элементы в таблицу
+                users.forEach(user => rows.append(row(user)));
+            }
+        }
+        // Получение одного пользователя
+        async function getUser(id) {
+            const response = await fetch(`/api/users/${id}`, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                document.getElementById("userId").value = user.id;
+                document.getElementById("userName").value = user.name;
+                document.getElementById("userAge").value = user.age;
+            }
+            else {
+                // если произошла ошибка, получаем сообщение об ошибке
+                const error = await response.json();
+                console.log(error.message); // и выводим его на консоль
+            }
+        }
+        // Добавление пользователя
+        async function createUser(userName, userAge) {
+
+            const response = await fetch("api/users", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: userName,
+                    age: parseInt(userAge, 10)
+                })
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                document.querySelector("tbody").append(row(user));
+            }
+            else {
+                const error = await response.json();
+                console.log(error.message);
+            }
+        }
+        // Изменение пользователя
+        async function editUser(userId, userName, userAge) {
+            const response = await fetch("api/users", {
+                method: "PUT",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: userId,
+                    name: userName,
+                    age: parseInt(userAge, 10)
+                })
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                document.querySelector(`tr[data-rowid='${user.id}']`).replaceWith(row(user));
+            }
+            else {
+                const error = await response.json();
+                console.log(error.message);
+            }
+        }
+        // Удаление пользователя
+        async function deleteUser(id) {
+            const response = await fetch(`/api/users/${id}`, {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                document.querySelector(`tr[data-rowid='${user.id}']`).remove();
+            }
+            else {
+                const error = await response.json();
+                console.log(error.message);
+            }
+        }
+
+        // сброс данных формы после отправки
+        function reset() {
+            document.getElementById("id_student").value = "";
+            document.getElementById("first_name").value = "";
+            document.getElementById("last_name").value = "";
+        }
+        // создание строки для таблицы
+        function row(user) {
+
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", user.id);
+
+            const nameTd = document.createElement("td");
+            nameTd.append(user.name);
+            tr.append(nameTd);
+
+            const ageTd = document.createElement("td");
+            ageTd.append(user.age);
+            tr.append(ageTd);
+
+            const linksTd = document.createElement("td");
+
+            const editLink = document.createElement("button");
+            editLink.append("Изменить");
+            editLink.addEventListener("click", async() => await getUser(user.id));
+            linksTd.append(editLink);
+
+            const removeLink = document.createElement("button");
+            removeLink.append("Удалить");
+            removeLink.addEventListener("click", async () => await deleteUser(user.id));
+
+            linksTd.append(removeLink);
+            tr.appendChild(linksTd);
+
+            return tr;
+        }
+        // сброс значений формы
+        document.getElementById("resetBtn").addEventListener("click", () =>  reset());
+        document.getElementById("resetGroupBtn").addEventListener("click", () =>  reset());
+
+        // отправка формы
+        document.getElementById("saveBtn").addEventListener("click", async () => {
+
+            const id = document.getElementById("userId").value;
+            const name = document.getElementById("userName").value;
+            const age = document.getElementById("userAge").value;
+            if (id === "")
+                await createUser(name, age);
+            else
+                await editUser(id, name, age);
+            reset();
+        });
+
+        // загрузка пользователей
+        getUsers();
+    </script>
+</body>
+</html>
