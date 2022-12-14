@@ -39,12 +39,12 @@ def get_people(db: Session = Depends(get_db)):
 @app.get("/api/student/{id_student}")
 def get_person(id, db: Session = Depends(get_db)):
     # получаем пользователя по id
-    person = db.query(Student).filter(Student.id == id).first()
+    person = db.query(Student).filter(Student.id_student == id).first()
     # если не найден, отправляем статусный код и сообщение об ошибке
     if person == None:
         return JSONResponse(status_code=404, content={"message": "Студент не найден"})
     # если пользователь найден, отправляем его
-    return person
+    
 
 
 @app.get("/api/group/{id_group}")
@@ -61,7 +61,7 @@ def get_person(id, db: Session = Depends(get_db)):
 #Создание студента
 @app.post("/api/student")
 def create_person(data=Body(), db: Session = Depends(get_db)):
-    person = Student(id_student=data["id_student"], id_group=data["id_group"]
+    person = Student(id_group=data["id_group"]
                      , first_name=data["first_name"], last_name=data["last_name"],
                      age=data["age"], birth_date=data["birth_date"], login=data["login"], password=data["password"])
     db.add(person)
